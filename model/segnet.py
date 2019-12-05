@@ -4,8 +4,8 @@ Implement Lane Detection Model
 import tensorflow as tf
 
 from config import global_config
-from lanenet_model import lanenet_back_end
-from lanenet_model import lanenet_front_end
+from model import segnet_back_end
+from model import segnet_front_end
 from semantic_segmentation_zoo import cnn_basenet
 
 CFG = global_config.cfg
@@ -23,10 +23,10 @@ class LaneNet(cnn_basenet.CNNBaseModel):
         self._net_flag = net_flag
         self._reuse = reuse
 
-        self._frontend = lanenet_front_end.LaneNetFrondEnd(
+        self._frontend = segnet_front_end.LaneNetFrondEnd(
             phase=phase, net_flag=net_flag
         )
-        self._backend = lanenet_back_end.LaneNetBackEnd(
+        self._backend = segnet_back_end.LaneNetBackEnd(
             phase=phase
         )
 

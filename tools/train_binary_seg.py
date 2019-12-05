@@ -15,8 +15,8 @@ import numpy as np
 import tensorflow as tf
 
 from config import global_config
-from data_provider import lanenet_data_feed_pipline
-from lanenet_model import lanenet
+from data_provider import data_feed_pipline
+from model import segnet
 from tools import evaluate_model_utils
 
 from tensorflow.core.protobuf import rewriter_config_pb2
@@ -206,17 +206,17 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
     :param weights_path:
     :return:
     """
-    train_dataset = lanenet_data_feed_pipline.LaneNetDataFeeder(
+    train_dataset = data_feed_pipline.LaneNetDataFeeder(
         dataset_dir=dataset_dir, flags='train'
     )
-    val_dataset = lanenet_data_feed_pipline.LaneNetDataFeeder(
+    val_dataset = data_feed_pipline.LaneNetDataFeeder(
         dataset_dir=dataset_dir, flags='val'
     )
 
     with tf.device('/gpu:1'):
         # set lanenet
-        train_net = lanenet.LaneNet(net_flag=net_flag, phase='train', reuse=False)
-        val_net = lanenet.LaneNet(net_flag=net_flag, phase='val', reuse=True)
+        train_net = segnet.LaneNet(net_flag=net_flag, phase='train', reuse=False)
+        val_net = segnet.LaneNet(net_flag=net_flag, phase='val', reuse=True)
 
         # set compute graph node for training
         train_images, train_binary_labels = train_dataset.inputs(
@@ -344,7 +344,7 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
             )
 
     # Set tf model save path
-    model_save_dir = 'model/binary_lane_bdd_{:s}'.format(net_flag)
+    model_save_dir = 'models/binary_lane_bdd_{:s}'.format(net_flag)
     os.makedirs(model_save_dir, exist_ok=True)
     train_start_time = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
     model_name = 'binary_lane_bdd_{:s}_{:s}.ckpt'.format(net_flag, str(train_start_time))
