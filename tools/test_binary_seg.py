@@ -1,5 +1,5 @@
 """
-test LaneNet model on single image
+test SegNet model on single image
 """
 import argparse
 import os.path as ops
@@ -80,10 +80,10 @@ def test_lanenet(image_path, weights_path):
 
     input_tensor = tf.placeholder(dtype=tf.float32, shape=[1, 256, 512, 3], name='input_tensor')
 
-    net = segnet.LaneNet(phase='test', net_flag='vgg')
+    net = segnet.SegNet(phase='test', net_flag='vgg')
     binary_seg_ret = net.inference(input_tensor=input_tensor, name='lanenet_model')
 
-    postprocessor = segnet_postprocess.LaneNetPostProcessor()
+    postprocessor = segnet_postprocess.SegNetPostProcessor()
 
     saver = tf.train.Saver()
 

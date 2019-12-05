@@ -1,5 +1,5 @@
 """
-Lanenet data feed pip line
+Data feed pip line
 """
 import argparse
 import glob
@@ -30,7 +30,7 @@ def init_args():
     parser.add_argument('--tfrecords_dir', type=str, help='The dir path to save converted tfrecords')
     return parser.parse_args()
 
-class LaneNetDataProducer(object):
+class SegNetDataProducer(object):
     """
     Convert raw image file into tfrecords
     """
@@ -272,7 +272,7 @@ class LaneNetDataProducer(object):
         return
 
 
-class LaneNetDataFeeder(object):
+class SegNetDataFeeder(object):
     """
     Read training examples from tfrecords for nsfw model
     """
@@ -353,5 +353,5 @@ if __name__ == '__main__':
 
     assert ops.exists(args.dataset_dir), '{:s} not exist'.format(args.dataset_dir)
 
-    producer = LaneNetDataProducer(dataset_dir=args.dataset_dir)
+    producer = SegNetDataProducer(dataset_dir=args.dataset_dir)
     producer.generate_tfrecords(save_dir=args.tfrecords_dir, step_size=1000)

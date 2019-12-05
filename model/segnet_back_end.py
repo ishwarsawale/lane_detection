@@ -9,7 +9,7 @@ from semantic_segmentation_zoo import cnn_basenet
 CFG = global_config.cfg
 
 
-class LaneNetBackEnd(cnn_basenet.CNNBaseModel):
+class SegNetDataFeeder(cnn_basenet.CNNBaseModel):
     """
     Backend branch which is mainly used for binary and instance segmentation loss calculation
     """
@@ -18,7 +18,7 @@ class LaneNetBackEnd(cnn_basenet.CNNBaseModel):
         init backend
         :param phase: train or test
         """
-        super(LaneNetBackEnd, self).__init__()
+        super(SegNetDataFeeder, self).__init__()
         self._phase = phase
         self._is_training = self._is_net_for_training()
 

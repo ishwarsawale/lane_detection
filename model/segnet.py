@@ -11,7 +11,7 @@ from semantic_segmentation_zoo import cnn_basenet
 CFG = global_config.cfg
 
 
-class LaneNet(cnn_basenet.CNNBaseModel):
+class SegNet(cnn_basenet.CNNBaseModel):
     """
 
     """
@@ -19,14 +19,14 @@ class LaneNet(cnn_basenet.CNNBaseModel):
         """
 
         """
-        super(LaneNet, self).__init__()
+        super(SegNet, self).__init__()
         self._net_flag = net_flag
         self._reuse = reuse
 
-        self._frontend = segnet_front_end.LaneNetFrondEnd(
+        self._frontend = segnet_front_end.SegNetFrondEnd(
             phase=phase, net_flag=net_flag
         )
-        self._backend = segnet_back_end.LaneNetBackEnd(
+        self._backend = segnet_back_end.SegNetDataFeeder(
             phase=phase
         )
 
@@ -59,7 +59,7 @@ class LaneNet(cnn_basenet.CNNBaseModel):
 
     def compute_loss(self, input_tensor, binary_label, name):
         """
-        calculate lanenet loss for training
+        calculate segmentation loss for training
         :param input_tensor:
         :param binary_label:
         :param name:

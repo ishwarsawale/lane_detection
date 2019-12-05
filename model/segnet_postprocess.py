@@ -1,5 +1,5 @@
 """
-LaneNet model post process
+model post process
 """
 import os.path as ops
 import math
@@ -132,7 +132,7 @@ class _LaneFeat(object):
         self._class_id = value
 
 
-class _LaneNetCluster(object):
+class _SegNetCluster(object):
     """
      Instance segmentation result cluster
     """
@@ -249,9 +249,9 @@ class _LaneNetCluster(object):
         return mask, lane_coords
 
 
-class LaneNetPostProcessor(object):
+class SegNetPostProcessor(object):
     """
-    lanenet post process for lane generation
+    segmentation post process for lane generation
     """
     def __init__(self, ipm_remap_file_path='./data/tusimple_ipm_remap.yml'):
         """
@@ -260,7 +260,7 @@ class LaneNetPostProcessor(object):
         """
         assert ops.exists(ipm_remap_file_path), '{:s} not exist'.format(ipm_remap_file_path)
 
-        self._cluster = _LaneNetCluster()
+        self._cluster = _SegNetCluster()
         self._ipm_remap_file_path = ipm_remap_file_path
 
         remap_file_load_ret = self._load_remap_matrix()

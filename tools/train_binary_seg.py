@@ -206,17 +206,16 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
     :param weights_path:
     :return:
     """
-    train_dataset = data_feed_pipline.LaneNetDataFeeder(
+    train_dataset = data_feed_pipline.SegNetDataFeeder(
         dataset_dir=dataset_dir, flags='train'
     )
-    val_dataset = data_feed_pipline.LaneNetDataFeeder(
+    val_dataset = data_feed_pipline.SegNetDataFeeder(
         dataset_dir=dataset_dir, flags='val'
     )
 
     with tf.device('/gpu:1'):
-        # set lanenet
-        train_net = segnet.LaneNet(net_flag=net_flag, phase='train', reuse=False)
-        val_net = segnet.LaneNet(net_flag=net_flag, phase='val', reuse=True)
+        train_net = segnet.SegNet(net_flag=net_flag, phase='train', reuse=False)
+        val_net = segnet.SegNet(net_flag=net_flag, phase='val', reuse=True)
 
         # set compute graph node for training
         train_images, train_binary_labels = train_dataset.inputs(

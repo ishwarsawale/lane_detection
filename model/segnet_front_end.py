@@ -5,7 +5,7 @@ from semantic_segmentation_zoo import cnn_basenet
 from semantic_segmentation_zoo import vgg16_based_fcn
 
 
-class LaneNetFrondEnd(cnn_basenet.CNNBaseModel):
+class SegNetFrondEnd(cnn_basenet.CNNBaseModel):
     """
     Frontend which is used to extract image features for following process
     """
@@ -13,7 +13,7 @@ class LaneNetFrondEnd(cnn_basenet.CNNBaseModel):
         """
 
         """
-        super(LaneNetFrondEnd, self).__init__()
+        super(SegNetFrondEnd, self).__init__()
 
         self._frontend_net_map = {
             'vgg': vgg16_based_fcn.VGG16FCN(phase=phase)
