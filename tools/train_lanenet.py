@@ -1,5 +1,5 @@
 """
-Train lanenet on binary_lane_bdd dataset
+Train binary seg on binary_lane_bdd dataset
 """
 import argparse
 import math
@@ -32,7 +32,7 @@ def init_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-d', '--dataset_dir', type=str,
-                        help='Lanenet Dataset dir')
+                        help='Dataset dir')
     parser.add_argument('-w', '--weights_path', type=str,
                         help='Path to pre-trained weights to continue training')
     parser.add_argument('-m', '--multi_gpus', type=args_str2bool, default=False,
@@ -125,21 +125,9 @@ def record_training_intermediate_result(gt_images, gt_binary_labels,
         gt_binary_label_path = ops.join(save_dir, gt_binary_label_name)
         cv2.imwrite(gt_binary_label_path, np.array(gt_binary_labels[index][:, :, 0] * 255, dtype=np.uint8))
 
-        # gt_instance_label_name = '{:s}_{:d}_gt_instance_label.png'.format(flag, index + 1)
-        # gt_instance_label_path = ops.join(save_dir, gt_instance_label_name)
-        # cv2.imwrite(gt_instance_label_path, np.array(gt_instance_labels[index][:, :, 0], dtype=np.uint8))
-
         gt_binary_seg_name = '{:s}_{:d}_gt_binary_seg.png'.format(flag, index + 1)
         gt_binary_seg_path = ops.join(save_dir, gt_binary_seg_name)
         cv2.imwrite(gt_binary_seg_path, np.array(binary_seg_images[index] * 255, dtype=np.uint8))
-
-        # embedding_image_name = '{:s}_{:d}_pix_embedding.png'.format(flag, index + 1)
-        # embedding_image_path = ops.join(save_dir, embedding_image_name)
-        # embedding_image = pix_embeddings[index]
-        # for i in range(CFG.TRAIN.EMBEDDING_FEATS_DIMS):
-        #     embedding_image[:, :, i] = minmax_scale(embedding_image[:, :, i])
-        # embedding_image = np.array(embedding_image, np.uint8)
-        # cv2.imwrite(embedding_image_path, embedding_image)
 
     return
 
@@ -242,7 +230,6 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
         train_total_loss = train_compute_ret['total_loss']
         train_binary_seg_loss = train_compute_ret['binary_seg_loss']
         # train_disc_loss = train_compute_ret['discriminative_loss']
-        # train_pix_embedding = train_compute_ret['instance_seg_logits']
 
         train_prediction_logits = train_compute_ret['binary_seg_logits']
         train_prediction_score = tf.nn.softmax(logits=train_prediction_logits)
@@ -260,9 +247,6 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
         train_binary_seg_ret_for_summary = evaluate_model_utils.get_image_summary(
             img=train_prediction
         )
-        # train_embedding_ret_for_summary = evaluate_model_utils.get_image_summary(
-            # img=train_pix_embedding
-        # )
 
         train_cost_scalar = tf.summary.scalar(
             name='train_cost', tensor=train_total_loss
@@ -273,9 +257,6 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
         train_binary_seg_loss_scalar = tf.summary.scalar(
             name='train_binary_seg_loss', tensor=train_binary_seg_loss
         )
-        # train_instance_seg_loss_scalar = tf.summary.scalar(
-            # name='train_instance_seg_loss', tensor=train_disc_loss
-        # )
         train_fn_scalar = tf.summary.scalar(
             name='train_fn', tensor=train_fn
         )
@@ -285,9 +266,6 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
         train_binary_seg_ret_img = tf.summary.image(
             name='train_binary_seg_ret', tensor=train_binary_seg_ret_for_summary
         )
-        # train_embedding_feats_ret_img = tf.summary.image(
-        #     name='train_embedding_feats_ret', tensor=train_embedding_ret_for_summary
-        # )
         train_merge_summary_op = tf.summary.merge(
             [train_accuracy_scalar, train_cost_scalar, train_binary_seg_loss_scalar,
              train_fn_scalar, train_fp_scalar,
@@ -305,8 +283,6 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
         )
         val_total_loss = val_compute_ret['total_loss']
         val_binary_seg_loss = val_compute_ret['binary_seg_loss']
-        # val_disc_loss = val_compute_ret['discriminative_loss']
-        # val_pix_embedding = val_compute_ret['instance_seg_logits']
 
         val_prediction_logits = val_compute_ret['binary_seg_logits']
         val_prediction_score = tf.nn.softmax(logits=val_prediction_logits)
@@ -324,9 +300,6 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
         val_binary_seg_ret_for_summary = evaluate_model_utils.get_image_summary(
             img=val_prediction
         )
-        # val_embedding_ret_for_summary = evaluate_model_utils.get_image_summary(
-            # img=val_pix_embedding
-        # )
 
         val_cost_scalar = tf.summary.scalar(
             name='val_cost', tensor=val_total_loss
@@ -337,9 +310,6 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
         val_binary_seg_loss_scalar = tf.summary.scalar(
             name='val_binary_seg_loss', tensor=val_binary_seg_loss
         )
-        # val_instance_seg_loss_scalar = tf.summary.scalar(
-            # name='val_instance_seg_loss', tensor=val_disc_loss
-        # )
         val_fn_scalar = tf.summary.scalar(
             name='val_fn', tensor=val_fn
         )
@@ -349,9 +319,6 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
         val_binary_seg_ret_img = tf.summary.image(
             name='val_binary_seg_ret', tensor=val_binary_seg_ret_for_summary
         )
-        # val_embedding_feats_ret_img = tf.summary.image(
-            # name='val_embedding_feats_ret', tensor=val_embedding_ret_for_summary
-        # )
         val_merge_summary_op = tf.summary.merge(
             [val_accuracy_scalar, val_cost_scalar, val_binary_seg_loss_scalar,
              val_fn_scalar, val_fp_scalar,
@@ -377,15 +344,15 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
             )
 
     # Set tf model save path
-    model_save_dir = 'model/tusimple_lanenet_{:s}'.format(net_flag)
+    model_save_dir = 'model/binary_lane_bdd_{:s}'.format(net_flag)
     os.makedirs(model_save_dir, exist_ok=True)
     train_start_time = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
-    model_name = 'tusimple_lanenet_{:s}_{:s}.ckpt'.format(net_flag, str(train_start_time))
+    model_name = 'binary_lane_bdd_{:s}_{:s}.ckpt'.format(net_flag, str(train_start_time))
     model_save_path = ops.join(model_save_dir, model_name)
     saver = tf.train.Saver()
 
     # Set tf summary save path
-    tboard_save_path = 'tboard/tusimple_lanenet_{:s}'.format(net_flag)
+    tboard_save_path = 'tboard/binary_lane_bdd_{:s}'.format(net_flag)
     os.makedirs(tboard_save_path, exist_ok=True)
 
     # Set sess configuration
@@ -439,14 +406,12 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
             if math.isnan(train_c) or math.isnan(train_binary_loss):
                 log.error('cost is: {:.5f}'.format(train_c))
                 log.error('binary cost is: {:.5f}'.format(train_binary_loss))
-                # log.error('instance cost is: {:.5f}'.format(train_instance_loss))
                 return
 
             if epoch % 100 == 0:
                 record_training_intermediate_result(
                     gt_images=train_gt_imgs, gt_binary_labels=train_binary_gt_labels,
                     binary_seg_images=train_binary_seg_imgs
-                    # pix_embeddings=train_embeddings
                 )
             summary_writer.add_summary(summary=train_summary, global_step=epoch)
 
@@ -471,14 +436,12 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
             if math.isnan(val_c) or math.isnan(val_binary_loss):
                 log.error('cost is: {:.5f}'.format(val_c))
                 log.error('binary cost is: {:.5f}'.format(val_binary_loss))
-                # log.error('instance cost is: {:.5f}'.format(val_instance_loss))
                 return
 
             if epoch % 100 == 0:
                 record_training_intermediate_result(
                     gt_images=val_gt_imgs, gt_binary_labels=val_binary_gt_labels,
                     binary_seg_images=val_binary_seg_imgs
-                    # pix_embeddings=val_embeddings, flag='val'
                 )
 
             cost_time = time.time() - t_start
@@ -500,218 +463,10 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
     return
 
 
-def train_lanenet_multi_gpu(dataset_dir, weights_path=None, net_flag='vgg'):
-    """
-    train lanenet with multi gpu
-    :param dataset_dir:
-    :param weights_path:
-    :param net_flag:
-    :return:
-    """
-    # set lanenet dataset
-    train_dataset = lanenet_data_feed_pipline.LaneNetDataFeeder(
-        dataset_dir=dataset_dir, flags='train'
-    )
-    val_dataset = lanenet_data_feed_pipline.LaneNetDataFeeder(
-        dataset_dir=dataset_dir, flags='val'
-    )
-
-    # set lanenet
-    train_net = lanenet.LaneNet(net_flag=net_flag, phase='train', reuse=False)
-    val_net = lanenet.LaneNet(net_flag=net_flag, phase='val', reuse=True)
-
-    # set compute graph node
-    train_images, train_binary_labels, train_instance_labels = train_dataset.inputs(
-        CFG.TRAIN.BATCH_SIZE, 1
-    )
-    val_images, val_binary_labels, val_instance_labels = val_dataset.inputs(
-        CFG.TRAIN.VAL_BATCH_SIZE, 1
-    )
-
-    # set average container
-    tower_grads = []
-    train_tower_loss = []
-    val_tower_loss = []
-    batchnorm_updates = None
-    train_summary_op_updates = None
-
-    # set lr
-    global_step = tf.Variable(0, trainable=False)
-    learning_rate = tf.train.polynomial_decay(
-        learning_rate=CFG.TRAIN.LEARNING_RATE,
-        global_step=global_step,
-        decay_steps=CFG.TRAIN.EPOCHS,
-        power=0.9
-    )
-
-    # set optimizer
-    optimizer = tf.train.MomentumOptimizer(
-        learning_rate=learning_rate, momentum=CFG.TRAIN.MOMENTUM
-    )
-
-    # set distributed train op
-    with tf.variable_scope(tf.get_variable_scope()):
-        for i in range(CFG.TRAIN.GPU_NUM):
-            with tf.device('/gpu:{:d}'.format(i)):
-                with tf.name_scope('tower_{:d}'.format(i)) as _:
-                    train_loss, grads = compute_net_gradients(
-                        train_images, train_binary_labels, train_instance_labels, train_net, optimizer
-                    )
-
-                    # Only use the mean and var in the first gpu tower to update the parameter
-                    if i == 0:
-                        batchnorm_updates = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-                        train_summary_op_updates = tf.get_collection(tf.GraphKeys.SUMMARIES)
-                    tower_grads.append(grads)
-                    train_tower_loss.append(train_loss)
-
-                with tf.name_scope('validation_{:d}'.format(i)) as _:
-                    val_loss, _ = compute_net_gradients(
-                        val_images, val_binary_labels, val_instance_labels, val_net, optimizer)
-                    val_tower_loss.append(val_loss)
-
-    grads = average_gradients(tower_grads)
-    avg_train_loss = tf.reduce_mean(train_tower_loss)
-    avg_val_loss = tf.reduce_mean(val_tower_loss)
-
-    # Track the moving averages of all trainable variables
-    variable_averages = tf.train.ExponentialMovingAverage(
-        CFG.TRAIN.MOVING_AVERAGE_DECAY, num_updates=global_step)
-    variables_to_average = tf.trainable_variables() + tf.moving_average_variables()
-    variables_averages_op = variable_averages.apply(variables_to_average)
-
-    # Group all the op needed for training
-    batchnorm_updates_op = tf.group(*batchnorm_updates)
-    apply_gradient_op = optimizer.apply_gradients(grads, global_step=global_step)
-    train_op = tf.group(apply_gradient_op, variables_averages_op,
-                        batchnorm_updates_op)
-
-    # Set tf summary save path
-    tboard_save_path = 'tboard/tusimple_lanenet_multi_gpu_{:s}'.format(net_flag)
-    os.makedirs(tboard_save_path, exist_ok=True)
-
-    summary_writer = tf.summary.FileWriter(tboard_save_path)
-
-    avg_train_loss_scalar = tf.summary.scalar(
-        name='average_train_loss', tensor=avg_train_loss
-    )
-    avg_val_loss_scalar = tf.summary.scalar(
-        name='average_val_loss', tensor=avg_val_loss
-    )
-    learning_rate_scalar = tf.summary.scalar(
-        name='learning_rate_scalar', tensor=learning_rate
-    )
-
-    train_merge_summary_op = tf.summary.merge(
-        [avg_train_loss_scalar, learning_rate_scalar] + train_summary_op_updates
-    )
-    val_merge_summary_op = tf.summary.merge([avg_val_loss_scalar])
-
-    # set tensorflow saver
-    saver = tf.train.Saver()
-    model_save_dir = 'model/tusimple_lanenet_multi_gpu_{:s}'.format(net_flag)
-    os.makedirs(model_save_dir, exist_ok=True)
-    train_start_time = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
-    model_name = 'tusimple_lanenet_{:s}_{:s}.ckpt'.format(net_flag, str(train_start_time))
-    model_save_path = ops.join(model_save_dir, model_name)
-
-    # set sess config
-    sess_config = tf.ConfigProto(device_count={'GPU': CFG.TRAIN.GPU_NUM}, allow_soft_placement=True)
-    sess_config.gpu_options.per_process_gpu_memory_fraction = CFG.TRAIN.GPU_MEMORY_FRACTION
-    sess_config.gpu_options.allow_growth = CFG.TRAIN.TF_ALLOW_GROWTH
-    sess_config.gpu_options.allocator_type = 'BFC'
-
-    # Set the training parameters
-    train_epochs = CFG.TRAIN.EPOCHS
-
-    log.info('Global configuration is as follows:')
-    log.info(CFG)
-
-    sess = tf.Session(config=sess_config)
-
-    summary_writer.add_graph(sess.graph)
-
-    with sess.as_default():
-
-        tf.train.write_graph(
-            graph_or_graph_def=sess.graph, logdir='',
-            name='{:s}/lanenet_model.pb'.format(model_save_dir))
-
-        if weights_path is None:
-            log.info('Training from scratch')
-            init = tf.global_variables_initializer()
-            sess.run(init)
-        else:
-            log.info('Restore model from last model checkpoint {:s}'.format(weights_path))
-            saver.restore(sess=sess, save_path=weights_path)
-
-        train_cost_time_mean = []
-        val_cost_time_mean = []
-
-        for epoch in range(train_epochs):
-
-            # training part
-            t_start = time.time()
-
-            _, train_loss_value, train_summary, lr = \
-                sess.run(
-                    fetches=[train_op, avg_train_loss,
-                             train_merge_summary_op, learning_rate]
-                )
-
-            if math.isnan(train_loss_value):
-                log.error('Train loss is nan')
-                return
-
-            cost_time = time.time() - t_start
-            train_cost_time_mean.append(cost_time)
-
-            summary_writer.add_summary(summary=train_summary, global_step=epoch)
-
-            # validation part
-            t_start_val = time.time()
-
-            val_loss_value, val_summary = \
-                sess.run(fetches=[avg_val_loss, val_merge_summary_op])
-
-            summary_writer.add_summary(val_summary, global_step=epoch)
-
-            cost_time_val = time.time() - t_start_val
-            val_cost_time_mean.append(cost_time_val)
-
-            if epoch % CFG.TRAIN.DISPLAY_STEP == 0:
-                log.info('Epoch_Train: {:d} total_loss= {:6f} '
-                         'lr= {:6f} mean_cost_time= {:5f}s '.
-                         format(epoch + 1,
-                                train_loss_value,
-                                lr,
-                                np.mean(train_cost_time_mean))
-                         )
-                train_cost_time_mean.clear()
-
-            if epoch % CFG.TRAIN.VAL_DISPLAY_STEP == 0:
-                log.info('Epoch_Val: {:d} total_loss= {:6f}'
-                         ' mean_cost_time= {:5f}s '.
-                         format(epoch + 1,
-                                val_loss_value,
-                                np.mean(val_cost_time_mean))
-                         )
-                val_cost_time_mean.clear()
-
-            if epoch % 2000 == 0:
-                saver.save(sess=sess, save_path=model_save_path, global_step=epoch)
-    return
-
-
 if __name__ == '__main__':
     # init args
     args = init_args()
 
     if CFG.TRAIN.GPU_NUM < 2:
         args.use_multi_gpu = False
-
-    # train lanenet
-    if not args.multi_gpus:
         train_lanenet(args.dataset_dir, args.weights_path, net_flag=args.net_flag)
-    else:
-        train_lanenet_multi_gpu(args.dataset_dir, args.weights_path, net_flag=args.net_flag)

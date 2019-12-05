@@ -1,5 +1,5 @@
 """
-Implement LaneNet Model
+Implement Lane Detection Model
 """
 import tensorflow as tf
 
@@ -62,7 +62,6 @@ class LaneNet(cnn_basenet.CNNBaseModel):
         calculate lanenet loss for training
         :param input_tensor:
         :param binary_label:
-        :param instance_label:
         :param name:
         :return:
         """

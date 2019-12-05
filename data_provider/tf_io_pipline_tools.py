@@ -41,7 +41,6 @@ def write_example_tfrecords(gt_images_paths, gt_binary_images_paths, tfrecords_p
     write tfrecords
     :param gt_images_paths:
     :param gt_binary_images_paths:
-    :param gt_instance_images_paths:
     :param tfrecords_path:
     :return:
     """
@@ -70,20 +69,11 @@ def write_example_tfrecords(gt_images_paths, gt_binary_images_paths, tfrecords_p
                 _gt_binary_image = np.array(_gt_binary_image / 255.0, dtype=np.uint8)
             _gt_binary_image_raw = _gt_binary_image.tostring()
 
-            # prepare gt instance image
-            # _gt_instance_image = cv2.imread(gt_instance_images_paths[_index], cv2.IMREAD_UNCHANGED)
-            # if _gt_instance_image.shape != (RESIZE_IMAGE_WIDTH, RESIZE_IMAGE_HEIGHT):
-            #     _gt_instance_image = cv2.resize(_gt_instance_image,
-            #                                     dsize=(RESIZE_IMAGE_WIDTH, RESIZE_IMAGE_HEIGHT),
-            #                                     interpolation=cv2.INTER_NEAREST)
-            # _gt_instance_image_raw = _gt_instance_image.tostring()
-
             _example = tf.train.Example(
                 features=tf.train.Features(
                     feature={
                         'gt_image_raw': bytes_feature(_gt_image_raw),
                         'gt_binary_image_raw': bytes_feature(_gt_binary_image_raw)
-                        # 'gt_instance_image_raw': bytes_feature(_gt_instance_image_raw)
                     }))
             _writer.write(_example.SerializeToString())
 
@@ -117,12 +107,7 @@ def decode(serialized_example):
     gt_binary_image = tf.decode_raw(features['gt_binary_image_raw'], tf.uint8)
     gt_binary_image = tf.reshape(gt_binary_image, gt_binary_image_shape)
 
-    # # decode gt instance image
-    # gt_instance_image_shape = tf.stack([RESIZE_IMAGE_HEIGHT, RESIZE_IMAGE_WIDTH, 1])
-    # gt_instance_image = tf.decode_raw(features['gt_instance_image_raw'], tf.uint8)
-    # gt_instance_image = tf.reshape(gt_instance_image, gt_instance_image_shape)
-
-    return gt_image, gt_binary_image#, gt_instance_image
+    return gt_image, gt_binary_image
 
 
 def augment_for_train(gt_image, gt_binary_image):
@@ -130,13 +115,11 @@ def augment_for_train(gt_image, gt_binary_image):
 
     :param gt_image:
     :param gt_binary_image:
-    :param gt_instance_image:
     :return:
     """
     # convert image from uint8 to float32
     gt_image = tf.cast(gt_image, tf.float32)
     gt_binary_image = tf.cast(gt_binary_image, tf.float32)
-    # gt_instance_image = tf.cast(gt_instance_image, tf.float32)
 
     # apply random flip augmentation
     gt_image, gt_binary_image = random_horizon_flip_batch_images(
@@ -147,7 +130,6 @@ def augment_for_train(gt_image, gt_binary_image):
     return random_crop_batch_images(
         gt_image=gt_image,
         gt_binary_image=gt_binary_image,
-        # gt_instance_image=gt_instance_image,
         cropped_size=[CROP_IMAGE_WIDTH, CROP_IMAGE_HEIGHT]
     )
 
@@ -157,7 +139,6 @@ def augment_for_test(gt_image, gt_binary_image):
 
     :param gt_image:
     :param gt_binary_image:
-    :param gt_instance_image:
     :return:
     """
     return gt_image, gt_binary_image
@@ -168,7 +149,6 @@ def normalize(gt_image, gt_binary_image):
     Normalize the image data by substracting the imagenet mean value
     :param gt_image:
     :param gt_binary_image:
-    :param gt_instance_image:
     :return:
     """
 
@@ -211,11 +191,6 @@ def random_crop_batch_images(gt_image, gt_binary_image, cropped_size):
         begin=[0, 0, 3],
         size=[cropped_size[1], cropped_size[0], 1]
     )
-    # cropped_gt_instance_image = tf.slice(
-    #     concat_cropped_images,
-    #     begin=[0, 0, 4],
-    #     size=[cropped_size[1], cropped_size[0], 1]
-    # )
 
     return cropped_gt_image, cropped_gt_binary_image
 
@@ -247,10 +222,5 @@ def random_horizon_flip_batch_images(gt_image, gt_binary_image):
         begin=[0, 0, 3],
         size=[image_height, image_width, 1]
     )
-    # flipped_gt_instance_image = tf.slice(
-    #     concat_flipped_images,
-    #     begin=[0, 0, 4],
-    #     size=[image_height, image_width, 1]
-    # )
 
     return flipped_gt_image, flipped_gt_binary_image

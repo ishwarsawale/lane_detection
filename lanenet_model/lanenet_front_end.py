@@ -1,5 +1,5 @@
 """
-LaneNet frontend branch which is mainly used for feature extraction
+Frontend branch which is mainly used for feature extraction
 """
 from semantic_segmentation_zoo import cnn_basenet
 from semantic_segmentation_zoo import vgg16_based_fcn
@@ -7,7 +7,7 @@ from semantic_segmentation_zoo import vgg16_based_fcn
 
 class LaneNetFrondEnd(cnn_basenet.CNNBaseModel):
     """
-    LaneNet frontend which is used to extract image features for following process
+    Frontend which is used to extract image features for following process
     """
     def __init__(self, phase, net_flag):
         """
