@@ -1,4 +1,3 @@
-# Lane Detection
 
 In Autonomous driving vehicle systems,  lane detection is one the most crucial step. In most Level 3 & Level 4 autonomous vehicle systems,  where few features set should be satisfied before operation take control of the vehicle.  Lane detection is a problem that needs to be solved very reliably & correctly as this is the essential building block of any Autonomous Driving systems. 
 
@@ -23,3 +22,27 @@ This network has two classes lane and background. Each pixel in the image is pre
 Network Architecture 
 Based on Learning Deconvolution Network for Semantic Segmentation work, we can use the pre-trained VGG network to extract the representation of the image for semantic segmentation. 
 Network architecture is based on the encoder-decoder network(ENet) mentioned in the above work. This network is trained for the generation of single-channel(binary) label images at the end.
+
+Results
+
+Input Image(Source: Tusimple)
+<p align="center">
+<img src="assets/input_image.jpg" height="512" width="512">
+</p>
+
+At Epoch 100
+<p align="center">
+<img src="assets/100epoch_binary_mask_image.png">
+</p>
+
+At Epoch 200
+<p align="center">
+<img src="assets/200epoch_binary_mask_image.png">
+</p>
+
+At Epoch 500
+<p align="center">
+<img src="assets/500epoch_binary_mask_image.png">
+</p>
+
+With the increase in epochs, accuracy for the segmentation increased. With more training, the network will be able to generalize more & provide better results. 

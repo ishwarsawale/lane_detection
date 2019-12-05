@@ -48,7 +48,7 @@ def init_args():
     :return:
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--src_dir', type=str, help='The origin path of unzipped tusimple dataset')
+    parser.add_argument('--src_dir', type=str, help='The origin path of unzipped bdd dataset')
 
     return parser.parse_args()
 

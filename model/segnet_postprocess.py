@@ -297,7 +297,7 @@ class SegNetPostProcessor(object):
 
     def postprocess(self, binary_seg_result,
                     min_area_threshold=100, source_image=None,
-                    data_source='tusimple'):
+                    data_source='bdd'):
         """
 
         :param binary_seg_result:
@@ -340,14 +340,14 @@ class SegNetPostProcessor(object):
         fit_params = []
         src_lane_pts = []  # lane pts every single lane
         for coords in lane_coords:
-            if data_source == 'tusimple':
+            if data_source == 'bdd':
                 tmp_mask = np.zeros(shape=(720, 1280), dtype=np.uint8)
                 tmp_mask[tuple((np.int_(coords * 720 / 256), np.int_(coords * 1280 / 512)))] = 255
             elif data_source == 'beec_ccd':
                 tmp_mask = np.zeros(shape=(1350, 2448), dtype=np.uint8)
                 tmp_mask[tuple((np.int_(coords[:, 1] * 1350 / 256), np.int_(coords[:, 0] * 2448 / 512)))] = 255
             else:
-                raise ValueError('Wrong data source now only support tusimple and beec_ccd')
+                raise ValueError('Wrong data source now only support bdd and beec_ccd')
             import pdb; pdb.set_trace()
             tmp_ipm_mask = cv2.remap(
                 tmp_mask,
@@ -380,19 +380,19 @@ class SegNetPostProcessor(object):
 
             src_lane_pts.append(lane_pts)
 
-        # tusimple test data sample point along y axis every 10 pixels
+        # bdd test data sample point along y axis every 10 pixels
         source_image_width = source_image.shape[1]
         for index, single_lane_pts in enumerate(src_lane_pts):
             single_lane_pt_x = np.array(single_lane_pts, dtype=np.float32)[:, 0]
             single_lane_pt_y = np.array(single_lane_pts, dtype=np.float32)[:, 1]
-            if data_source == 'tusimple':
+            if data_source == 'bdd':
                 start_plot_y = 240
                 end_plot_y = 720
             elif data_source == 'beec_ccd':
                 start_plot_y = 820
                 end_plot_y = 1350
             else:
-                raise ValueError('Wrong data source now only support tusimple and beec_ccd')
+                raise ValueError('Wrong data source now only support bdd and beec_ccd')
             step = int(math.floor((end_plot_y - start_plot_y) / 10))
             for plot_y in np.linspace(start_plot_y, end_plot_y, step):
                 diff = single_lane_pt_y - plot_y
