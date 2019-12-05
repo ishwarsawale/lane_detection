@@ -1,5 +1,5 @@
 
-#### Lane Detection 
+# Lane Detection 
 In Autonomous driving vehicle systems,  lane detection is one the most crucial step. In most Level 3 & Level 4 autonomous vehicle systems,  where few features set should be satisfied before operation take control of the vehicle.  Lane detection is a problem that needs to be solved very reliably & correctly as this is the essential building block of any Autonomous Driving systems. 
 
 In the following section, we are discussing traditional approaches for Lane detection. Before moving towards the techniques that can be used for Lane detection, first, we need to understand if the RGB cameras are good enough to capture the features to identify the lanes. Lane's in themself are not that feature-rich, most of the marking will be similar & it has proven that in controlled conditions, we can surely detect these lanes using algorithms. So the data gathering process using standard cameras should work as expected.
