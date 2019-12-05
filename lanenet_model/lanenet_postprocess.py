@@ -188,7 +188,7 @@ class _LaneNetCluster(object):
         return ret
 
     @staticmethod
-    def _get_lane_embedding_feats(binary_seg_ret, instance_seg_ret):
+    def _get_lane_embedding_feats(binary_seg_ret):
         """
         get lane embedding features according the binary seg result
         :param binary_seg_ret:
@@ -196,7 +196,7 @@ class _LaneNetCluster(object):
         :return:
         """
         idx = np.where(binary_seg_ret == 255)
-        lane_embedding_feats = instance_seg_ret[idx]
+        lane_embedding_feats = binary_seg_ret[idx]
         # idx_scale = np.vstack((idx[0] / 256.0, idx[1] / 512.0)).transpose()
         # lane_embedding_feats = np.hstack((lane_embedding_feats, idx_scale))
         lane_coordinate = np.vstack((idx[1], idx[0])).transpose()
@@ -210,7 +210,7 @@ class _LaneNetCluster(object):
 
         return ret
 
-    def apply_lane_feats_cluster(self, binary_seg_result, instance_seg_result):
+    def apply_lane_feats_cluster(self, binary_seg_result):
         """
 
         :param binary_seg_result:
@@ -219,8 +219,7 @@ class _LaneNetCluster(object):
         """
         # get embedding feats and coords
         get_lane_embedding_feats_result = self._get_lane_embedding_feats(
-            binary_seg_ret=binary_seg_result,
-            instance_seg_ret=instance_seg_result
+            binary_seg_ret=binary_seg_result
         )
 
         # dbscan cluster
@@ -232,7 +231,8 @@ class _LaneNetCluster(object):
         db_labels = dbscan_cluster_result['db_labels']
         unique_labels = dbscan_cluster_result['unique_labels']
         coord = get_lane_embedding_feats_result['lane_coordinates']
-
+        
+        
         if db_labels is None:
             return None, None
 
@@ -295,7 +295,7 @@ class LaneNetPostProcessor(object):
 
         return ret
 
-    def postprocess(self, binary_seg_result, instance_seg_result=None,
+    def postprocess(self, binary_seg_result,
                     min_area_threshold=100, source_image=None,
                     data_source='tusimple'):
         """
@@ -324,29 +324,31 @@ class LaneNetPostProcessor(object):
 
         # apply embedding features cluster
         mask_image, lane_coords = self._cluster.apply_lane_feats_cluster(
-            binary_seg_result=morphological_ret,
-            instance_seg_result=instance_seg_result
+            binary_seg_result=morphological_ret
+            # instance_seg_result=instance_seg_result
         )
 
-        if mask_image is None:
-            return {
-                'mask_image': None,
-                'fit_params': None,
-                'source_image': None,
-            }
+
+        # if mask_image is None:
+        #     return {
+        #         'mask_image': None,
+        #         'fit_params': None,
+        #         'source_image': None,
+        #     }
 
         # lane line fit
         fit_params = []
         src_lane_pts = []  # lane pts every single lane
-        for lane_index, coords in enumerate(lane_coords):
+        for coords in lane_coords:
             if data_source == 'tusimple':
                 tmp_mask = np.zeros(shape=(720, 1280), dtype=np.uint8)
-                tmp_mask[tuple((np.int_(coords[:, 1] * 720 / 256), np.int_(coords[:, 0] * 1280 / 512)))] = 255
+                tmp_mask[tuple((np.int_(coords * 720 / 256), np.int_(coords * 1280 / 512)))] = 255
             elif data_source == 'beec_ccd':
                 tmp_mask = np.zeros(shape=(1350, 2448), dtype=np.uint8)
                 tmp_mask[tuple((np.int_(coords[:, 1] * 1350 / 256), np.int_(coords[:, 0] * 2448 / 512)))] = 255
             else:
                 raise ValueError('Wrong data source now only support tusimple and beec_ccd')
+            import pdb; pdb.set_trace()
             tmp_ipm_mask = cv2.remap(
                 tmp_mask,
                 self._remap_to_ipm_x,
@@ -422,8 +424,12 @@ class LaneNetPostProcessor(object):
                     continue
 
                 lane_color = self._color_map[index].tolist()
+                print(int(interpolation_src_pt_x), int(interpolation_src_pt_y))
                 cv2.circle(source_image, (int(interpolation_src_pt_x),
                                           int(interpolation_src_pt_y)), 5, lane_color, -1)
+        
+        mask_image = None
+        cv2.imwrite('iv.png',source_image)
         ret = {
             'mask_image': mask_image,
             'fit_params': fit_params,

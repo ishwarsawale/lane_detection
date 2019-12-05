@@ -44,7 +44,6 @@ class LaneNetDataProducer(object):
 
         self._gt_image_dir = ops.join(dataset_dir, 'gt_image')
         self._gt_binary_image_dir = ops.join(dataset_dir, 'gt_binary_image')
-        self._gt_instance_image_dir = ops.join(dataset_dir, 'gt_instance_image')
 
         self._train_example_index_file_path = ops.join(self._dataset_dir, 'train.txt')
         self._test_example_index_file_path = ops.join(self._dataset_dir, 'test.txt')
@@ -71,35 +70,30 @@ class LaneNetDataProducer(object):
 
             _example_gt_path_info = []
             _example_gt_binary_path_info = []
-            _example_gt_instance_path_info = []
 
             with open(_index_file_path, 'r') as _file:
                 for _line in _file:
                     _example_info = _line.rstrip('\r').rstrip('\n').split(' ')
                     _example_gt_path_info.append(_example_info[0])
                     _example_gt_binary_path_info.append(_example_info[1])
-                    _example_gt_instance_path_info.append(_example_info[2])
 
             ret = {
                 'gt_path_info': _example_gt_path_info,
-                'gt_binary_path_info': _example_gt_binary_path_info,
-                'gt_instance_path_info': _example_gt_instance_path_info
+                'gt_binary_path_info': _example_gt_binary_path_info
             }
 
             return ret
 
         def _split_writing_tfrecords_task(
-                _example_gt_paths, _example_gt_binary_paths, _example_gt_instance_paths, _flags='train'):
+                _example_gt_paths, _example_gt_binary_paths, _flags='train'):
 
             _split_example_gt_paths = []
             _split_example_gt_binary_paths = []
-            _split_example_gt_instance_paths = []
             _split_tfrecords_save_paths = []
 
             for i in range(0, len(_example_gt_paths), step_size):
                 _split_example_gt_paths.append(_example_gt_paths[i:i + step_size])
                 _split_example_gt_binary_paths.append(_example_gt_binary_paths[i:i + step_size])
-                _split_example_gt_instance_paths.append(_example_gt_instance_paths[i:i + step_size])
 
                 if i + step_size > len(_example_gt_paths):
                     _split_tfrecords_save_paths.append(
@@ -111,7 +105,6 @@ class LaneNetDataProducer(object):
             ret = {
                 'gt_paths': _split_example_gt_paths,
                 'gt_binary_paths': _split_example_gt_binary_paths,
-                'gt_instance_paths': _split_example_gt_instance_paths,
                 'tfrecords_paths': _split_tfrecords_save_paths
             }
 
@@ -127,21 +120,20 @@ class LaneNetDataProducer(object):
         train_image_paths_info = _read_training_example_index_file(self._train_example_index_file_path)
         train_gt_images_paths = train_image_paths_info['gt_path_info']
         train_gt_binary_images_paths = train_image_paths_info['gt_binary_path_info']
-        train_gt_instance_images_paths = train_image_paths_info['gt_instance_path_info']
+        # train_gt_instance_images_paths = train_image_paths_info['gt_instance_path_info']
 
         # split training images according step size
         train_split_result = _split_writing_tfrecords_task(
-            train_gt_images_paths, train_gt_binary_images_paths, train_gt_instance_images_paths, _flags='train')
+            train_gt_images_paths, train_gt_binary_images_paths,  _flags='train')
         train_example_gt_paths = train_split_result['gt_paths']
         train_example_gt_binary_paths = train_split_result['gt_binary_paths']
-        train_example_gt_instance_paths = train_split_result['gt_instance_paths']
+        # train_example_gt_instance_paths = train_split_result['gt_instance_paths']
         train_example_tfrecords_paths = train_split_result['tfrecords_paths']
 
         for index, example_gt_paths in enumerate(train_example_gt_paths):
             tf_io_pipline_tools.write_example_tfrecords(
                 example_gt_paths,
                 train_example_gt_binary_paths[index],
-                train_example_gt_instance_paths[index],
                 train_example_tfrecords_paths[index]
             )
 
@@ -154,21 +146,20 @@ class LaneNetDataProducer(object):
         val_image_paths_info = _read_training_example_index_file(self._val_example_index_file_path)
         val_gt_images_paths = val_image_paths_info['gt_path_info']
         val_gt_binary_images_paths = val_image_paths_info['gt_binary_path_info']
-        val_gt_instance_images_paths = val_image_paths_info['gt_instance_path_info']
+        # val_gt_instance_images_paths = val_image_paths_info['gt_instance_path_info']
 
         # split validation images according step size
         val_split_result = _split_writing_tfrecords_task(
-            val_gt_images_paths, val_gt_binary_images_paths, val_gt_instance_images_paths, _flags='val')
+            val_gt_images_paths, val_gt_binary_images_paths, _flags='val')
         val_example_gt_paths = val_split_result['gt_paths']
         val_example_gt_binary_paths = val_split_result['gt_binary_paths']
-        val_example_gt_instance_paths = val_split_result['gt_instance_paths']
+        # val_example_gt_instance_paths = val_split_result['gt_instance_paths']
         val_example_tfrecords_paths = val_split_result['tfrecords_paths']
 
         for index, example_gt_paths in enumerate(val_example_gt_paths):
             tf_io_pipline_tools.write_example_tfrecords(
                 example_gt_paths,
                 val_example_gt_binary_paths[index],
-                val_example_gt_instance_paths[index],
                 val_example_tfrecords_paths[index]
             )
 
@@ -181,21 +172,21 @@ class LaneNetDataProducer(object):
         test_image_paths_info = _read_training_example_index_file(self._test_example_index_file_path)
         test_gt_images_paths = test_image_paths_info['gt_path_info']
         test_gt_binary_images_paths = test_image_paths_info['gt_binary_path_info']
-        test_gt_instance_images_paths = test_image_paths_info['gt_instance_path_info']
+        # test_gt_instance_images_paths = test_image_paths_info['gt_instance_path_info']
 
         # split validating images according step size
         test_split_result = _split_writing_tfrecords_task(
-            test_gt_images_paths, test_gt_binary_images_paths, test_gt_instance_images_paths, _flags='test')
+            test_gt_images_paths, test_gt_binary_images_paths, _flags='test')
         test_example_gt_paths = test_split_result['gt_paths']
         test_example_gt_binary_paths = test_split_result['gt_binary_paths']
-        test_example_gt_instance_paths = test_split_result['gt_instance_paths']
+        # test_example_gt_instance_paths = test_split_result['gt_instance_paths']
         test_example_tfrecords_paths = test_split_result['tfrecords_paths']
 
         for index, example_gt_paths in enumerate(test_example_gt_paths):
             tf_io_pipline_tools.write_example_tfrecords(
                 example_gt_paths,
                 test_example_gt_binary_paths[index],
-                test_example_gt_instance_paths[index],
+                # test_example_gt_instance_paths[index],
                 test_example_tfrecords_paths[index]
             )
 
@@ -210,7 +201,6 @@ class LaneNetDataProducer(object):
         """
         return \
             ops.exists(self._gt_binary_image_dir) and \
-            ops.exists(self._gt_instance_image_dir) and \
             ops.exists(self._gt_image_dir)
 
     def _is_training_sample_index_file_complete(self):
@@ -240,16 +230,13 @@ class LaneNetDataProducer(object):
             for _gt_image_path in glob.glob('{:s}/*.png'.format(self._gt_image_dir)):
                 _gt_binary_image_name = ops.split(_gt_image_path)[1]
                 _gt_binary_image_path = ops.join(self._gt_binary_image_dir, _gt_binary_image_name)
-                _gt_instance_image_name = ops.split(_gt_image_path)[1]
-                _gt_instance_image_path = ops.join(self._gt_instance_image_dir, _gt_instance_image_name)
 
                 assert ops.exists(_gt_binary_image_path), '{:s} not exist'.format(_gt_binary_image_path)
-                assert ops.exists(_gt_instance_image_path), '{:s} not exist'.format(_gt_instance_image_path)
 
                 _info.append('{:s} {:s} {:s}\n'.format(
                     _gt_image_path,
-                    _gt_binary_image_path,
-                    _gt_instance_image_path)
+                    _gt_binary_image_path
+                    )
                 )
 
             return _info

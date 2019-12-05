@@ -46,9 +46,8 @@ class LaneNet(cnn_basenet.CNNBaseModel):
             )
 
             # second apply backend process
-            binary_seg_prediction, instance_seg_prediction = self._backend.inference(
+            binary_seg_prediction = self._backend.inference(
                 binary_seg_logits=extract_feats_result['binary_segment_logits']['data'],
-                instance_seg_logits=extract_feats_result['instance_segment_logits']['data'],
                 name='{:s}_backend'.format(self._net_flag),
                 reuse=self._reuse
             )
@@ -56,9 +55,9 @@ class LaneNet(cnn_basenet.CNNBaseModel):
             if not self._reuse:
                 self._reuse = True
 
-        return binary_seg_prediction, instance_seg_prediction
+        return binary_seg_prediction
 
-    def compute_loss(self, input_tensor, binary_label, instance_label, name):
+    def compute_loss(self, input_tensor, binary_label, name):
         """
         calculate lanenet loss for training
         :param input_tensor:
@@ -79,8 +78,6 @@ class LaneNet(cnn_basenet.CNNBaseModel):
             calculated_losses = self._backend.compute_loss(
                 binary_seg_logits=extract_feats_result['binary_segment_logits']['data'],
                 binary_label=binary_label,
-                instance_seg_logits=extract_feats_result['instance_segment_logits']['data'],
-                instance_label=instance_label,
                 name='{:s}_backend'.format(self._net_flag),
                 reuse=self._reuse
             )

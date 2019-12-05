@@ -11,15 +11,15 @@ cfg = __C
 __C.TRAIN = edict()
 
 # Set the shadownet training epochs
-__C.TRAIN.EPOCHS = 100
+__C.TRAIN.EPOCHS = 1000
 # Set the display step
 __C.TRAIN.DISPLAY_STEP = 1
 # Set the test display step during training process
-__C.TRAIN.VAL_DISPLAY_STEP = 1000
+__C.TRAIN.VAL_DISPLAY_STEP = 100
 # Set the momentum parameter of the optimizer
 __C.TRAIN.MOMENTUM = 0.9
 # Set the initial learning rate
-__C.TRAIN.LEARNING_RATE = 0.00001
+__C.TRAIN.LEARNING_RATE = 0.000001
 # Set the GPU resource used during training process
 __C.TRAIN.GPU_MEMORY_FRACTION = 0.95
 # Set the GPU allow growth parameter during tensorflow training process

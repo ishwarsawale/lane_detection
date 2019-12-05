@@ -81,7 +81,7 @@ def test_lanenet(image_path, weights_path):
     input_tensor = tf.placeholder(dtype=tf.float32, shape=[1, 256, 512, 3], name='input_tensor')
 
     net = lanenet.LaneNet(phase='test', net_flag='vgg')
-    binary_seg_ret, instance_seg_ret = net.inference(input_tensor=input_tensor, name='lanenet_model')
+    binary_seg_ret = net.inference(input_tensor=input_tensor, name='lanenet_model')
 
     postprocessor = lanenet_postprocess.LaneNetPostProcessor()
 
@@ -100,36 +100,36 @@ def test_lanenet(image_path, weights_path):
         saver.restore(sess=sess, save_path=weights_path)
 
         t_start = time.time()
-        binary_seg_image, instance_seg_image = sess.run(
-            [binary_seg_ret, instance_seg_ret],
+        binary_seg_image = sess.run(
+            binary_seg_ret,
             feed_dict={input_tensor: [image]}
         )
         t_cost = time.time() - t_start
         log.info('Single imgae inference cost time: {:.5f}s'.format(t_cost))
 
-        postprocess_result = postprocessor.postprocess(
-            binary_seg_result=binary_seg_image[0],
-            instance_seg_result=instance_seg_image[0],
-            source_image=image_vis
-        )
-        mask_image = postprocess_result['mask_image']
+        # postprocess_result = postprocessor.postprocess(
+        #     binary_seg_result=binary_seg_image[0],
+        #     # instance_seg_result=instance_seg_image[0],
+        #     source_image=image_vis
+        # )
+        # mask_image = postprocess_result['mask_image']
 
-        for i in range(CFG.TRAIN.EMBEDDING_FEATS_DIMS):
-            instance_seg_image[0][:, :, i] = minmax_scale(instance_seg_image[0][:, :, i])
-        embedding_image = np.array(instance_seg_image[0], np.uint8)
+        # # for i in range(CFG.TRAIN.EMBEDDING_FEATS_DIMS):
+        # #     instance_seg_image[0][:, :, i] = minmax_scale(instance_seg_image[0][:, :, i])
+        # # embedding_image = np.array(instance_seg_image[0], np.uint8)
 
-        plt.figure('mask_image')
-        plt.imshow(mask_image[:, :, (2, 1, 0)])
-        plt.figure('src_image')
-        plt.imshow(image_vis[:, :, (2, 1, 0)])
-        plt.figure('instance_image')
-        plt.imshow(embedding_image[:, :, (2, 1, 0)])
-        plt.figure('binary_image')
-        plt.imshow(binary_seg_image[0] * 255, cmap='gray')
-        plt.show()
+        # # plt.figure('mask_image')
+        # # plt.imshow(mask_image[:, :, (2, 1, 0)])
+        # plt.figure('src_image')
+        # plt.imshow(image_vis[:, :, (2, 1, 0)])
+        # # plt.figure('instance_image')
+        # # plt.imshow(embedding_image[:, :, (2, 1, 0)])
+        # plt.figure('binary_image')
+        # plt.imshow(binary_seg_image[0] * 255, cmap='gray')
+        # plt.show()
 
-        cv2.imwrite('instance_mask_image.png', mask_image)
-        cv2.imwrite('source_image.png', postprocess_result['source_image'])
+        # # cv2.imwrite('instance_mask_image.png', mask_image)
+        # cv2.imwrite('source_image.png', postprocess_result['source_image'])
         cv2.imwrite('binary_mask_image.png', binary_seg_image[0] * 255)
 
     sess.close()

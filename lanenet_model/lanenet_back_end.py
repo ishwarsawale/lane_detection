@@ -57,7 +57,6 @@ class LaneNetBackEnd(cnn_basenet.CNNBaseModel):
         return loss
 
     def compute_loss(self, binary_seg_logits, binary_label,
-                     instance_seg_logits, instance_label,
                      name, reuse):
         """
         compute lanenet loss
@@ -102,24 +101,24 @@ class LaneNetBackEnd(cnn_basenet.CNNBaseModel):
                 )
 
             # calculate class weighted instance seg loss
-            with tf.variable_scope(name_or_scope='instance_seg'):
+            # with tf.variable_scope(name_or_scope='instance_seg'):
 
-                pix_bn = self.layerbn(
-                    inputdata=instance_seg_logits, is_training=self._is_training, name='pix_bn')
-                pix_relu = self.relu(inputdata=pix_bn, name='pix_relu')
-                pix_embedding = self.conv2d(
-                    inputdata=pix_relu,
-                    out_channel=CFG.TRAIN.EMBEDDING_FEATS_DIMS,
-                    kernel_size=1,
-                    use_bias=False,
-                    name='pix_embedding_conv'
-                )
-                pix_image_shape = (pix_embedding.get_shape().as_list()[1], pix_embedding.get_shape().as_list()[2])
-                instance_segmentation_loss, l_var, l_dist, l_reg = \
-                    lanenet_discriminative_loss.discriminative_loss(
-                        pix_embedding, instance_label, CFG.TRAIN.EMBEDDING_FEATS_DIMS,
-                        pix_image_shape, 0.5, 3.0, 1.0, 1.0, 0.001
-                    )
+            #     pix_bn = self.layerbn(
+            #         inputdata=instance_seg_logits, is_training=self._is_training, name='pix_bn')
+            #     pix_relu = self.relu(inputdata=pix_bn, name='pix_relu')
+            #     pix_embedding = self.conv2d(
+            #         inputdata=pix_relu,
+            #         out_channel=CFG.TRAIN.EMBEDDING_FEATS_DIMS,
+            #         kernel_size=1,
+            #         use_bias=False,
+            #         name='pix_embedding_conv'
+            #     )
+            #     pix_image_shape = (pix_embedding.get_shape().as_list()[1], pix_embedding.get_shape().as_list()[2])
+            #     instance_segmentation_loss, l_var, l_dist, l_reg = \
+            #         lanenet_discriminative_loss.discriminative_loss(
+            #             pix_embedding, instance_label, CFG.TRAIN.EMBEDDING_FEATS_DIMS,
+            #             pix_image_shape, 0.5, 3.0, 1.0, 1.0, 0.001
+            #         )
 
             l2_reg_loss = tf.constant(0.0, tf.float32)
             for vv in tf.trainable_variables():
@@ -128,19 +127,17 @@ class LaneNetBackEnd(cnn_basenet.CNNBaseModel):
                 else:
                     l2_reg_loss = tf.add(l2_reg_loss, tf.nn.l2_loss(vv))
             l2_reg_loss *= 0.001
-            total_loss = binary_segmenatation_loss + instance_segmentation_loss + l2_reg_loss
+            total_loss = binary_segmenatation_loss + l2_reg_loss
 
             ret = {
                 'total_loss': total_loss,
                 'binary_seg_logits': binary_seg_logits,
-                'instance_seg_logits': pix_embedding,
-                'binary_seg_loss': binary_segmenatation_loss,
-                'discriminative_loss': instance_segmentation_loss
+                'binary_seg_loss': binary_segmenatation_loss
             }
 
         return ret
 
-    def inference(self, binary_seg_logits, instance_seg_logits, name, reuse):
+    def inference(self, binary_seg_logits, name, reuse):
         """
 
         :param binary_seg_logits:
@@ -155,17 +152,17 @@ class LaneNetBackEnd(cnn_basenet.CNNBaseModel):
                 binary_seg_score = tf.nn.softmax(logits=binary_seg_logits)
                 binary_seg_prediction = tf.argmax(binary_seg_score, axis=-1)
 
-            with tf.variable_scope(name_or_scope='instance_seg'):
+            # with tf.variable_scope(name_or_scope='instance_seg'):
 
-                pix_bn = self.layerbn(
-                    inputdata=instance_seg_logits, is_training=self._is_training, name='pix_bn')
-                pix_relu = self.relu(inputdata=pix_bn, name='pix_relu')
-                instance_seg_prediction = self.conv2d(
-                    inputdata=pix_relu,
-                    out_channel=CFG.TRAIN.EMBEDDING_FEATS_DIMS,
-                    kernel_size=1,
-                    use_bias=False,
-                    name='pix_embedding_conv'
-                )
+            #     pix_bn = self.layerbn(
+            #         inputdata=instance_seg_logits, is_training=self._is_training, name='pix_bn')
+            #     pix_relu = self.relu(inputdata=pix_bn, name='pix_relu')
+            #     instance_seg_prediction = self.conv2d(
+            #         inputdata=pix_relu,
+            #         out_channel=CFG.TRAIN.EMBEDDING_FEATS_DIMS,
+            #         kernel_size=1,
+            #         use_bias=False,
+            #         name='pix_embedding_conv'
+            #     )
 
-        return binary_seg_prediction, instance_seg_prediction
+        return binary_seg_prediction

@@ -128,7 +128,10 @@ dmypy.json
 # Pyre type checker
 .pyre
 data/**
+datao***
 tboard/*
 tmp/**
 data/training_data_example/train.txt
 data/training_data_example/val.txt
+
+*.png
