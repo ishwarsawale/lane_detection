@@ -133,5 +133,3 @@ tboard/*
 tmp/**
 data/training_data_example/train.txt
 data/training_data_example/val.txt
-
-*.png
