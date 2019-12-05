@@ -343,7 +343,7 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
             )
 
     # Set tf model save path
-    model_save_dir = 'models/binary_lane_bdd_{:s}'.format(net_flag)
+    model_save_dir = 'weights/binary_lane_bdd_{:s}'.format(net_flag)
     os.makedirs(model_save_dir, exist_ok=True)
     train_start_time = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
     model_name = 'binary_lane_bdd_{:s}_{:s}.ckpt'.format(net_flag, str(train_start_time))
