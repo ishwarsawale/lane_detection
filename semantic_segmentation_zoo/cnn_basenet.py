@@ -326,13 +326,11 @@ class CNNBaseModel(object):
             mean, var = tf.nn.moments(inputdata, [2, 3, 4], keep_dims=True)
             inputdata = (inputdata - mean) / tf.sqrt(var + esp)
 
-            # 每个通道的gamma和beta
             gamma = tf.Variable(tf.constant(1.0, shape=[c]), dtype=tf.float32, name='gamma')
             beta = tf.Variable(tf.constant(0.0, shape=[c]), dtype=tf.float32, name='beta')
             gamma = tf.reshape(gamma, [1, c, 1, 1])
             beta = tf.reshape(beta, [1, c, 1, 1])
 
-            # 根据论文进行转换 [n, c, h, w, c] 到 [n, h, w, c]
             output = tf.reshape(inputdata, [-1, c, h, w])
             output = output * gamma + beta
             output = tf.transpose(output, [0, 2, 3, 1])
