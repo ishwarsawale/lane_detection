@@ -60,6 +60,8 @@ python tools/test_lanenet.py --weights_path weights/binary_lane_bdd_vgg/binary_l
 
 #### Results
 
+##### Dataset is [here](https://github.com/TuSimple/tusimple-benchmark/issues/3)
+
 ##### Input Image
 <p align="center">
 <img src="assets/input_image.jpg" height="512" width="512">
