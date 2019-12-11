@@ -228,7 +228,6 @@ def train_lanenet(dataset_dir, weights_path=None, net_flag='vgg'):
         )
         train_total_loss = train_compute_ret['total_loss']
         train_binary_seg_loss = train_compute_ret['binary_seg_loss']
-        # train_disc_loss = train_compute_ret['discriminative_loss']
 
         train_prediction_logits = train_compute_ret['binary_seg_logits']
         train_prediction_score = tf.nn.softmax(logits=train_prediction_logits)

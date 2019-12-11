@@ -80,4 +80,7 @@ python tools/test_lanenet.py --weights_path weights/binary_lane_bdd_vgg/binary_l
 <img src="assets/500epoch_binary_mask_image.png">
 </p>
 
-With the increase in epochs, accuracy for the segmentation increased. With more training, the network will be able to generalize more & provide better results. 
+##### At Epoch 10K Epochs
+<p align="center">
+<img src="assets/10kepoch_binary_mask_image.png">
+</p>
